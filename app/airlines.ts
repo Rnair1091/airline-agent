@@ -290,4 +290,283 @@ export const airlines: Record<string, Airline> = {
       { q: 'Can Air Canada agents process refunds over the phone?', a: 'Yes. Air Canada agents can handle refunds for cancelled and eligible flights. Have your booking reference ready.' }
     ]
   }
-}
+'frontier-airlines': {
+    name: 'Frontier Airlines',
+    phone: '1-801-401-9000',
+    ivr: 'Press 1 for English, press 2 for existing reservations, say "agent" or press 0',
+    bestTime: '6am–8am MST weekdays',
+    waitTime: '15–25 minutes average',
+    alternative: 'flyfrontier.com chat or Twitter @FlyFrontier',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation', 'discount den'],
+    faq: [
+      { q: 'How do I talk to a human at Frontier Airlines?', a: 'Call 1-801-401-9000, press 1 for English, press 2 for existing reservations, then say "agent" or press 0 to reach a live Frontier agent.' },
+      { q: 'What is the best time to call Frontier Airlines?', a: 'Between 6am and 8am MST on weekdays. Frontier has high call volumes during afternoon and evening hours.' },
+      { q: 'Can Frontier Airlines process refunds over the phone?', a: 'Yes. Frontier agents can process refunds for cancelled flights. Note Frontier has strict fare rules so have your booking details ready.' }
+    ]
+  },
+  'spirit-airlines': {
+    name: 'Spirit Airlines',
+    phone: '1-855-728-3555',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '6am–8am EST weekdays',
+    waitTime: '20–35 minutes average',
+    alternative: 'spirit.com chat or Twitter @SpiritAirlines',
+    issues: ['refund', 'rebooking', 'baggage fees', 'cancellation', 'seat upgrade'],
+    faq: [
+      { q: 'How do I reach a human at Spirit Airlines?', a: 'Call 1-855-728-3555, press 1 for English, press 2 for existing bookings, then press 0. Spirit is known for long wait times so calling early morning is essential.' },
+      { q: 'What is the best time to call Spirit Airlines?', a: 'Between 6am and 8am EST on weekdays. Spirit Airlines consistently has some of the longest wait times of any US carrier.' },
+      { q: 'Can Spirit Airlines give refunds over the phone?', a: 'Spirit agents can process refunds for cancelled flights and eligible fares. Spirit has strict no-refund policies on basic fares so check your fare type first.' }
+    ]
+  },
+  'hawaiian-airlines': {
+    name: 'Hawaiian Airlines',
+    phone: '1-800-367-5320',
+    ivr: 'Press 1 for English, press 2 for existing reservations, say "agent" or press 0',
+    bestTime: '7am–9am HST weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'hawaiianairlines.com chat or Twitter @HawaiianAir',
+    issues: ['refund', 'rebooking', 'hawaiian miles', 'upgrade', 'baggage', 'inter-island flights'],
+    faq: [
+      { q: 'How do I talk to a human at Hawaiian Airlines?', a: 'Call 1-800-367-5320, press 1 for English, press 2 for existing reservations, then say "agent" or press 0 to reach a live Hawaiian Airlines representative.' },
+      { q: 'What is the best time to call Hawaiian Airlines?', a: 'Between 7am and 9am HST on weekdays. Hawaiian Airlines has relatively shorter wait times compared to mainland carriers.' },
+      { q: 'Can Hawaiian Airlines process refunds over the phone?', a: 'Yes. Hawaiian Airlines agents can handle refunds for cancelled and eligible flights. Have your confirmation code ready.' }
+    ]
+  },
+  'sun-country-airlines': {
+    name: 'Sun Country Airlines',
+    phone: '1-651-905-2737',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '7am–9am CST weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'suncountry.com chat or Twitter @SunCountryAir',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation', 'vacation packages'],
+    faq: [
+      { q: 'How do I reach a human at Sun Country Airlines?', a: 'Call 1-651-905-2737, press 1 for English, press 2 for existing bookings, then press 0 to reach a live Sun Country agent.' },
+      { q: 'What is the best time to call Sun Country Airlines?', a: 'Between 7am and 9am CST on weekdays gives the shortest wait times.' },
+      { q: 'Can Sun Country process refunds over the phone?', a: 'Yes. Sun Country agents can handle refunds for eligible tickets. Have your booking reference ready.' }
+    ]
+  },
+  'avelo-airlines': {
+    name: 'Avelo Airlines',
+    phone: '1-346-616-9500',
+    ivr: 'Press 1 for English, press 2 for existing reservations, say "agent" to reach a human',
+    bestTime: '7am–9am CST weekdays',
+    waitTime: '10–15 minutes average',
+    alternative: 'aveloair.com chat or Twitter @aveloairlines',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation'],
+    faq: [
+      { q: 'How do I talk to a human at Avelo Airlines?', a: 'Call 1-346-616-9500, press 1 for English, press 2 for existing reservations, then say "agent" to reach a live Avelo representative.' },
+      { q: 'What is the best time to call Avelo Airlines?', a: 'Between 7am and 9am CST on weekdays. Avelo is a smaller carrier with generally shorter wait times.' },
+      { q: 'Can Avelo Airlines process refunds by phone?', a: 'Yes. Avelo agents can process refunds for cancelled flights and eligible fares.' }
+    ]
+  },
+  'breeze-airways': {
+    name: 'Breeze Airways',
+    phone: '1-501-273-3931',
+    ivr: 'Press 1 for English, press 2 for existing bookings, say "agent" or press 0',
+    bestTime: '7am–9am EST weekdays',
+    waitTime: '10–15 minutes average',
+    alternative: 'flybreeze.com chat or Twitter @BreezeAirways',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation', 'breezepoints'],
+    faq: [
+      { q: 'How do I reach a human at Breeze Airways?', a: 'Call 1-501-273-3931, press 1 for English, press 2 for existing bookings, then say "agent" or press 0 to reach a live Breeze representative.' },
+      { q: 'What is the best time to call Breeze Airways?', a: 'Between 7am and 9am EST on weekdays. Breeze is a newer carrier with generally manageable wait times.' },
+      { q: 'Can Breeze Airways handle refunds over the phone?', a: 'Yes. Breeze agents can process refunds for cancelled flights and eligible fares.' }
+    ]
+  },
+  'allegiant-air': {
+    name: 'Allegiant Air',
+    phone: '1-702-505-8888',
+    ivr: 'Press 1 for English, press 2 for existing reservations, press 0 to reach an agent',
+    bestTime: '6am–8am PST weekdays',
+    waitTime: '20–30 minutes average',
+    alternative: 'allegiantair.com chat or Twitter @Allegiant',
+    issues: ['refund', 'rebooking', 'baggage fees', 'cancellation', 'allways rewards'],
+    faq: [
+      { q: 'How do I talk to a human at Allegiant Air?', a: 'Call 1-702-505-8888, press 1 for English, press 2 for existing reservations, then press 0 to reach a live Allegiant agent.' },
+      { q: 'What is the best time to call Allegiant Air?', a: 'Between 6am and 8am PST on weekdays. Allegiant can have long wait times especially around holiday periods.' },
+      { q: 'Can Allegiant Air process refunds over the phone?', a: 'Allegiant agents can process refunds for cancelled flights. Note Allegiant has strict policies on non-refundable fares.' }
+    ]
+  },
+  'air-transat': {
+    name: 'Air Transat',
+    phone: '1-877-872-6728',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '7am–9am EST weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'airtransat.com chat or Twitter @AirTransat',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation', 'club transat'],
+    faq: [
+      { q: 'How do I reach a human at Air Transat?', a: 'Call 1-877-872-6728, press 1 for English, press 2 for existing bookings, then press 0 to reach a live Air Transat agent.' },
+      { q: 'What is the best time to call Air Transat?', a: 'Between 7am and 9am EST on weekdays gives the shortest wait times.' },
+      { q: 'Can Air Transat process refunds over the phone?', a: 'Yes. Air Transat agents can handle refunds for cancelled and eligible flights.' }
+    ]
+  },
+  'westjet': {
+    name: 'WestJet',
+    phone: '1-888-937-8538',
+    ivr: 'Press 1 for English, press 2 for existing reservations, say "agent" or press 0',
+    bestTime: '6am–8am MST weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'westjet.com chat or Twitter @WestJet',
+    issues: ['refund', 'rebooking', 'westjet rewards', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I talk to a human at WestJet?', a: 'Call 1-888-937-8538, press 1 for English, press 2 for existing reservations, then say "agent" or press 0 to reach a live WestJet representative.' },
+      { q: 'What is the best time to call WestJet?', a: 'Between 6am and 8am MST on weekdays. WestJet operates out of Calgary and has generally reasonable wait times.' },
+      { q: 'Can WestJet process refunds over the phone?', a: 'Yes. WestJet agents can handle refunds for cancelled and eligible flights. Have your booking reference ready.' }
+    ]
+  },
+  'virgin-atlantic': {
+    name: 'Virgin Atlantic',
+    phone: '1-800-862-8621',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 or say "agent"',
+    bestTime: '7am–9am GMT weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'virginatlantic.com chat or Twitter @VirginAtlantic',
+    issues: ['refund', 'rebooking', 'flying club miles', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at Virgin Atlantic?', a: 'Call 1-800-862-8621, press 1 for English, press 2 for existing bookings, then press 0 or say "agent" to reach a live Virgin Atlantic representative.' },
+      { q: 'What is the best time to call Virgin Atlantic?', a: 'Between 7am and 9am GMT on weekdays. Virgin Atlantic has a reputation for good customer service.' },
+      { q: 'Can Virgin Atlantic process refunds over the phone?', a: 'Yes. Virgin Atlantic agents can handle refunds, rebooking, and upgrades over the phone.' }
+    ]
+  },
+  'iberia': {
+    name: 'Iberia',
+    phone: '1-800-772-4642',
+    ivr: 'Press 1 for English, press 2 for existing reservations, press 0 to reach an agent',
+    bestTime: '8am–10am CET weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'iberia.com chat or Twitter @Iberia_en',
+    issues: ['refund', 'rebooking', 'iberia plus miles', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I talk to a human at Iberia?', a: 'Call 1-800-772-4642, press 1 for English, press 2 for existing reservations, then press 0 to reach a live Iberia agent.' },
+      { q: 'What is the best time to call Iberia?', a: 'Between 8am and 10am CET on weekdays gives the shortest wait times.' },
+      { q: 'Can Iberia process refunds over the phone?', a: 'Yes. Iberia agents can handle refunds for cancelled and eligible tickets. Have your booking reference ready.' }
+    ]
+  },
+  'swiss-airlines': {
+    name: 'SWISS International Air Lines',
+    phone: '1-877-359-7947',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '7am–9am CET weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'swiss.com chat or Twitter @FlySWISS',
+    issues: ['refund', 'rebooking', 'miles and more', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at SWISS Airlines?', a: 'Call 1-877-359-7947, press 1 for English, press 2 for existing bookings, then press 0 to reach a live SWISS agent.' },
+      { q: 'What is the best time to call SWISS Airlines?', a: 'Between 7am and 9am CET on weekdays. SWISS is known for efficient customer service.' },
+      { q: 'Can SWISS Airlines process refunds over the phone?', a: 'Yes. SWISS agents can handle refunds, rebooking, and upgrades over the phone.' }
+    ]
+  },
+  'ana': {
+    name: 'All Nippon Airways (ANA)',
+    phone: '1-800-235-9262',
+    ivr: 'Press 1 for English, press 2 for existing reservations, press 0 to reach an agent',
+    bestTime: '8am–10am JST weekdays',
+    waitTime: '8–12 minutes average',
+    alternative: 'ana.co.jp chat or Twitter @ANAWorldwide',
+    issues: ['refund', 'rebooking', 'ana mileage club', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I talk to a human at ANA?', a: 'Call 1-800-235-9262, press 1 for English, press 2 for existing reservations, then press 0 to reach a live ANA representative.' },
+      { q: 'What is the best time to call ANA customer service?', a: 'Between 8am and 10am JST on weekdays. ANA is known for exceptional customer service and shorter wait times.' },
+      { q: 'Can ANA process refunds over the phone?', a: 'Yes. ANA agents can handle refunds, rebooking, and upgrades. Have your booking reference ready.' }
+    ]
+  },
+  'japan-airlines': {
+    name: 'Japan Airlines (JAL)',
+    phone: '1-800-525-3663',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '8am–10am JST weekdays',
+    waitTime: '8–12 minutes average',
+    alternative: 'jal.co.jp chat or Twitter @JAL_Official_jp',
+    issues: ['refund', 'rebooking', 'jal mileage bank', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at Japan Airlines?', a: 'Call 1-800-525-3663, press 1 for English, press 2 for existing bookings, then press 0 to reach a live JAL agent.' },
+      { q: 'What is the best time to call Japan Airlines?', a: 'Between 8am and 10am JST on weekdays. JAL is known for excellent customer service standards.' },
+      { q: 'Can Japan Airlines process refunds over the phone?', a: 'Yes. JAL agents can handle refunds, rebooking, and upgrades. Have your booking reference ready.' }
+    ]
+  },
+  'korean-air': {
+    name: 'Korean Air',
+    phone: '1-800-438-5000',
+    ivr: 'Press 1 for English, press 2 for existing reservations, press 0 to reach an agent',
+    bestTime: '8am–10am KST weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'koreanair.com chat or Twitter @KoreanAir_KE',
+    issues: ['refund', 'rebooking', 'skypass miles', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I talk to a human at Korean Air?', a: 'Call 1-800-438-5000, press 1 for English, press 2 for existing reservations, then press 0 to reach a live Korean Air agent.' },
+      { q: 'What is the best time to call Korean Air?', a: 'Between 8am and 10am KST on weekdays gives the shortest wait times.' },
+      { q: 'Can Korean Air process refunds over the phone?', a: 'Yes. Korean Air agents can handle refunds, rebooking, and upgrades over the phone.' }
+    ]
+  },
+  'air-new-zealand': {
+    name: 'Air New Zealand',
+    phone: '1-800-262-1234',
+    ivr: 'Press 1 for English, press 2 for existing bookings, say "agent" or press 0',
+    bestTime: '8am–10am NZST weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'airnewzealand.com chat or Twitter @AirNZNews',
+    issues: ['refund', 'rebooking', 'airpoints', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at Air New Zealand?', a: 'Call 1-800-262-1234, press 1 for English, press 2 for existing bookings, then say "agent" or press 0 to reach a live Air New Zealand agent.' },
+      { q: 'What is the best time to call Air New Zealand?', a: 'Between 8am and 10am NZST on weekdays. Air New Zealand is known for good customer service.' },
+      { q: 'Can Air New Zealand process refunds over the phone?', a: 'Yes. Air New Zealand agents can handle refunds, rebooking, and upgrades over the phone.' }
+    ]
+  },
+  'thai-airways': {
+    name: 'Thai Airways',
+    phone: '1-212-949-8424',
+    ivr: 'Press 1 for English, press 2 for existing reservations, press 0 to reach an agent',
+    bestTime: '8am–10am ICT weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'thaiairways.com chat or Twitter @ThaiAirways',
+    issues: ['refund', 'rebooking', 'royal orchid plus', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I talk to a human at Thai Airways?', a: 'Call 1-212-949-8424, press 1 for English, press 2 for existing reservations, then press 0 to reach a live Thai Airways agent.' },
+      { q: 'What is the best time to call Thai Airways?', a: 'Between 8am and 10am ICT on weekdays gives the shortest wait times.' },
+      { q: 'Can Thai Airways process refunds over the phone?', a: 'Yes. Thai Airways agents can handle refunds for cancelled and eligible tickets.' }
+    ]
+  },
+  'malaysia-airlines': {
+    name: 'Malaysia Airlines',
+    phone: '1-800-552-9264',
+    ivr: 'Press 1 for English, press 2 for existing bookings, press 0 to reach an agent',
+    bestTime: '8am–10am MYT weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'malaysiaairlines.com chat or Twitter @MAS',
+    issues: ['refund', 'rebooking', 'enrich miles', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at Malaysia Airlines?', a: 'Call 1-800-552-9264, press 1 for English, press 2 for existing bookings, then press 0 to reach a live Malaysia Airlines agent.' },
+      { q: 'What is the best time to call Malaysia Airlines?', a: 'Between 8am and 10am MYT on weekdays gives the shortest wait times.' },
+      { q: 'Can Malaysia Airlines process refunds over the phone?', a: 'Yes. Malaysia Airlines agents can handle refunds for cancelled and eligible flights.' }
+    ]
+  },
+  'spicejet': {
+    name: 'SpiceJet',
+    phone: '1-800-180-3333',
+    ivr: 'Press 1 for English, press 2 for existing bookings, say "agent" or press 0',
+    bestTime: '7am–9am IST weekdays',
+    waitTime: '10–20 minutes average',
+    alternative: 'spicejet.com chat or Twitter @flyspicejet',
+    issues: ['refund', 'rebooking', 'baggage', 'cancellation', 'spicecash'],
+    faq: [
+      { q: 'How do I talk to a human at SpiceJet?', a: 'Call 1-800-180-3333, press 1 for English, press 2 for existing bookings, then say "agent" or press 0 to reach a live SpiceJet representative.' },
+      { q: 'What is the best time to call SpiceJet?', a: 'Between 7am and 9am IST on weekdays gives the shortest wait times.' },
+      { q: 'Can SpiceJet process refunds over the phone?', a: 'Yes. SpiceJet agents can handle refunds for cancelled and eligible tickets. Have your PNR ready.' }
+    ]
+  },
+  'vistara': {
+    name: 'Vistara',
+    phone: '1-800-908-1515',
+    ivr: 'Press 1 for English, press 2 for existing reservations, say "agent" or press 0',
+    bestTime: '7am–9am IST weekdays',
+    waitTime: '8–15 minutes average',
+    alternative: 'airvistara.com chat or Twitter @airvistara',
+    issues: ['refund', 'rebooking', 'club vistara points', 'upgrade', 'baggage'],
+    faq: [
+      { q: 'How do I reach a human at Vistara?', a: 'Call 1-800-908-1515, press 1 for English, press 2 for existing reservations, then say "agent" or press 0 to reach a live Vistara representative.' },
+      { q: 'What is the best time to call Vistara?', a: 'Between 7am and 9am IST on weekdays. Vistara is known for good customer service standards.' },
+      { q: 'Can Vistara process refunds over the phone?', a: 'Yes. Vistara agents can handle refunds for cancelled and eligible flights. Have your PNR ready.' }
+    ]
+  },}
