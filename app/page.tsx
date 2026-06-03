@@ -1,3 +1,5 @@
+import AirlineSearch from './components/AirlineSearch'
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
@@ -19,9 +21,13 @@ export default function Home() {
           Stuck on hold with your airline?
           <span className="text-blue-600"> We get you to a real person.</span>
         </h1>
-        <p className="text-xl text-gray-500 mb-10">
+        <p className="text-xl text-gray-500 mb-8">
           Skip the IVR maze. We connect passengers to live airline agents for refunds, rebooking, lost baggage, and cancellations — fast.
         </p>
+
+        {/* Search bar */}
+        <AirlineSearch />
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="#book" className="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700">
             Connect Me Now — $25
@@ -68,6 +74,9 @@ export default function Home() {
               </span>
             ))}
           </div>
+          <a href="/airlines" className="inline-block mt-8 text-blue-600 font-medium hover:underline">
+            View all airlines →
+          </a>
         </div>
       </section>
 
@@ -88,5 +97,5 @@ export default function Home() {
       </footer>
 
     </main>
-  );
+  )
 }
