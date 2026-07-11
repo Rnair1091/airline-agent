@@ -1,75 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
-// Define the absolute path to our custom local CRM database file
-const CRM_DB_PATH = path.join(process.cwd(), 'data', 'leads.json');
-
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    // 1. Extract the new contact fields and core identifiers from the payload
-    const body = await req.json();
-    const { travelerName, phone, email, pnr, sector, authorized } = body;
+    const body = await request.json();
+    const { travelerName, phone, email, pnr, sector, authorized, airlineName } = body;
 
-    // 2. Server-side Protection Checks (Never trust client-side inputs alone)
-    if (!travelerName || !pnr || !phone || !email) {
+    // 1. Validation check
+    if (!travelerName || !phone || !email || !pnr || !sector) {
       return NextResponse.json(
-        { error: 'Missing required coordination metrics.' },
+        { error: 'All contact and flight details are mandatory.' },
         { status: 400 }
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return NextResponse.json({ error: 'Invalid backend email structural format.' }, { status: 400 });
+    // 2. Insert into Supabase database
+    const { data, error } = await supabase
+      .from('leads')
+      .insert([
+        {
+          traveler_name: travelerName,
+          phone: phone,
+          email: email,
+          pnr: pnr,
+          sector: sector,
+          airline_name: airlineName || null,
+          authorized: authorized || false
+        }
+      ])
+      .select();
+
+    if (error) {
+      console.error('Supabase error:', error.message);
+      return NextResponse.json(
+        { error: 'Database transaction failed.' },
+        { status: 500 }
+      );
     }
 
-    const cleanPhone = phone.replace(/[\s()+\-\.]/g, '');
-    if (cleanPhone.length < 7 || cleanPhone.length > 15 || /^(\d)\1+$/.test(cleanPhone)) {
-      return NextResponse.json({ error: 'Contact phone validation failure.' }, { status: 400 });
-    }
-
-    // 3. Read existing data from our custom local CRM file
-    let leads = [];
-    if (fs.existsSync(CRM_DB_PATH)) {
-      const fileData = fs.readFileSync(CRM_DB_PATH, 'utf8');
-      leads = fileData ? JSON.parse(fileData) : [];
-    } else {
-      // Ensure the 'data' directory exists if this is a fresh setup
-      const dirPath = path.dirname(CRM_DB_PATH);
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-      }
-    }
-
-    // 4. Structure the complete entry including our newly added contact metrics
-    const newLead = {
-      id: `lead_${Date.now()}`,
-      travelerName: travelerName.trim(),
-      phone: cleanPhone,
-      email: email.trim().toLowerCase(),
-      pnr: pnr.trim().toUpperCase(),
-      sector,
-      authorized,
-      status: 'Pending Assignment', // Baseline dashboard status indicator
-      createdAt: new Date().toISOString()
-    };
-
-    // 5. Append the updated profile to our local dataset and write it back to disk
-    leads.push(newLead);
-    fs.writeFileSync(CRM_DB_PATH, JSON.stringify(leads, null, 2), 'utf8');
-
-    console.log('CRM Local DB Synced Successfully:', newLead);
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Intake synchronized seamlessly with operational control centers.' 
-    });
+    return NextResponse.json(
+      { message: 'Request submitted successfully!', data },
+      { status: 200 }
+    );
 
   } catch (error) {
-    console.error('CRM Intake Sync Error:', error);
+    console.error('System error:', error);
     return NextResponse.json(
-      { error: 'Internal operational desk disruption error.' },
+      { error: 'Internal system error processing request.' },
       { status: 500 }
     );
   }
