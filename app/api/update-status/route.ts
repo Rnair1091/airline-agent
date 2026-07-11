@@ -1,33 +1,40 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: Request) {
   try {
-    const { id, status } = await request.json(); // Switch from index to unique id
-    const filePath = path.join(process.cwd(), 'data', 'leads.json');
-    
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    const { id, status } = await request.json();
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: 'Lead ID and status are required.' },
+        { status: 400 }
+      );
     }
 
-    const fileData = fs.readFileSync(filePath, 'utf8');
-    let leads = JSON.parse(fileData);
+    // Update the status column in the Supabase 'leads' table for the matching ID
+    const { data, error } = await supabase
+      .from('leads')
+      .update({ status: status })
+      .eq('id', id)
+      .select();
 
-    // Find the record index by its unique string ID
-    const leadIndex = leads.findIndex((lead: any) => lead.id === id);
-
-    if (leadIndex !== -1) {
-      leads[leadIndex].status = status;
-      fs.writeFileSync(filePath, JSON.stringify(leads, null, 2), 'utf8');
-      console.log(`Successfully updated lead ${id} to ${status}`);
-      return NextResponse.json({ success: true });
-    } else {
-      console.error(`Lead ID ${id} not found in database.`);
-      return NextResponse.json({ error: 'Record not found' }, { status: 404 });
+    if (error) {
+      console.error('Supabase update status error:', error.message);
+      return NextResponse.json(
+        { error: 'Database transaction failed.' },
+        { status: 500 }
+      );
     }
+
+    console.log(`Successfully updated lead ${id} to ${status} in Supabase`);
+    return NextResponse.json({ success: true, data });
+
   } catch (error) {
-    console.error("Update status error:", error);
-    return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+    console.error("Update status system error:", error);
+    return NextResponse.json(
+      { error: 'Internal system error updating status.' },
+      { status: 500 }
+    );
   }
 }
