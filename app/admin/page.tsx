@@ -39,12 +39,17 @@ export default function AdminDashboard() {
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
+    // Optimistically update the UI status state so the selector responds immediately
+    setSubmissions((prevLeads: any) =>
+      prevLeads.map((lead: any) => (lead.id === id ? { ...lead, status: newStatus } : lead))
+    );
+
     await fetch('/api/update-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: newStatus })
     });
-    fetchData(); // Instantly update the UI after changing status
+    fetchData(); // Instantly sync UI with final DB snapshot
   };
 
   // Purge a record from your local storage system
@@ -85,16 +90,16 @@ export default function AdminDashboard() {
           {submissions.map((sub: any, i: number) => (
             <tr key={sub.id || `fallback-key-${i}`} className="border-b hover:bg-slate-50/50 transition-colors">
               <td className="p-4 text-xs font-mono text-slate-500">
-                {sub.createdAt ? new Date(sub.createdAt).toLocaleString() : 'N/A'}
+                {sub.created_at ? new Date(sub.created_at).toLocaleString() : 'N/A'}
               </td>
-              <td className="p-4 font-medium">{sub.travelerName}</td>
+              <td className="p-4 font-medium">{sub.traveler_name || sub.travelerName}</td>
               <td className="p-4 font-mono text-xs select-all">{sub.phone || '—'}</td>
               <td className="p-4 text-xs select-all text-slate-600">{sub.email || '—'}</td>
               <td className="p-4 uppercase font-bold tracking-wider">{sub.pnr}</td>
               <td className="p-4 text-slate-600">{sub.sector}</td>
               <td className="p-4">
                 <select 
-                  value={sub.status}
+                  value={sub.status || "Pending Assignment"}
                   onChange={(e) => updateStatus(sub.id, e.target.value)}
                   className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
