@@ -24,33 +24,39 @@ export default function AdminDashboard() {
     if (!localStorage.getItem('agent_authenticated')) {
       router.push('/login');
     } else {
+      // Run the initial data load immediately when the page finishes rendering
       fetchData();
 
+      // Start an auto-sync timer that updates the table every 5000 milliseconds (5 seconds)
       const autoRefreshInterval = setInterval(() => {
         fetchData();
       }, 5000);
 
+      // Clean up the timer whenever the admin leaves this page so your browser stays fast
       return () => clearInterval(autoRefreshInterval);
     }
   }, []);
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
-    // Optimistically update the local state so the dropdown changes instantly for the user
-    setSubmissions((prevLeads: any) =>
-      prevLeads.map((lead: any) => (lead.id === id ? { ...lead, status: newStatus } : lead))
+    // FIX: Optimistically update the state locally so the dropdown reflects the change instantly
+    setSubmissions((prev: any) =>
+      prev.map((sub: any) => (sub.id === id ? { ...sub, status: newStatus } : sub))
     );
 
-    await fetch('/api/update-status', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: newStatus })
-    });
-    
-    fetchData(); // Sync up with the database reality check
+    try {
+      await fetch('/api/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+      fetchData(); // Instantly refresh the UI from database to confirm sync
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
   };
 
-  // Purge a record from your system
+  // Purge a record from your local storage system
   const deleteEntry = async (id: string) => {
     if (!confirm('Are you sure you want to delete this submission?')) return;
     await fetch('/api/delete-entry', {
@@ -58,7 +64,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     });
-    fetchData(); 
+    fetchData(); // Instantly update the UI after deletion
   };
 
   return (
@@ -90,14 +96,14 @@ export default function AdminDashboard() {
               <td className="p-4 text-xs font-mono text-slate-500">
                 {sub.createdAt ? new Date(sub.createdAt).toLocaleString() : 'N/A'}
               </td>
-              <td className="p-4 font-medium">{sub.travelerName || '—'}</td>
+              <td className="p-4 font-medium">{sub.travelerName}</td>
               <td className="p-4 font-mono text-xs select-all">{sub.phone || '—'}</td>
               <td className="p-4 text-xs select-all text-slate-600">{sub.email || '—'}</td>
               <td className="p-4 uppercase font-bold tracking-wider">{sub.pnr}</td>
               <td className="p-4 text-slate-600">{sub.sector}</td>
               <td className="p-4">
                 <select 
-                  value={sub.status || "Pending Assignment"}
+                  value={sub.status}
                   onChange={(e) => updateStatus(sub.id, e.target.value)}
                   className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
