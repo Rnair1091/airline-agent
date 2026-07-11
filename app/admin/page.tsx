@@ -50,7 +50,11 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus })
       });
-      fetchData(); // Instantly refresh the UI from database to confirm sync
+      
+      // FIXED: Added a 500ms delay to let Supabase write the new status before refreshing
+      setTimeout(() => {
+        fetchData();
+      }, 500);
     } catch (error) {
       console.error("Failed to update status:", error);
     }
