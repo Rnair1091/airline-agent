@@ -3,9 +3,10 @@ import { useState } from 'react';
 
 interface IntakeFormProps {
   defaultSector?: string;
+  airlineName?: string; // <-- This tells Vercel that airlineName is perfectly allowed here!
 }
 
-export default function IntakeForm({ defaultSector = 'Flights' }: IntakeFormProps) {
+export default function IntakeForm({ defaultSector = 'Flights', airlineName = '' }: IntakeFormProps) {
   const [travelerName, setTravelerName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -36,7 +37,7 @@ export default function IntakeForm({ defaultSector = 'Flights' }: IntakeFormProp
       const response = await fetch('/api/intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ travelerName, phone, email, pnr, sector, authorized }),
+        body: JSON.stringify({ travelerName, phone, email, pnr, sector, authorized, airlineName }),
       });
 
       const data = await response.json();
@@ -79,7 +80,7 @@ export default function IntakeForm({ defaultSector = 'Flights' }: IntakeFormProp
             Contact Phone Number
           </label>
           <input
-            type="tel"
+            type="text"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+1 (555) 000-0000"
