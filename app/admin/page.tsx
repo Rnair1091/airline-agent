@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false); // Flag to freeze the auto-sync during a database save
   const router = useRouter();
 
   // 1. Fetch data function that pulls the latest records from the backend database
@@ -27,19 +28,24 @@ export default function AdminDashboard() {
       // Run the initial data load immediately when the page finishes rendering
       fetchData();
 
-      // Start an auto-sync timer that updates the table every 5000 milliseconds (5 seconds)
+      // Start an auto-sync timer that updates the table every 5 seconds, BUT only if we aren't saving an update
       const autoRefreshInterval = setInterval(() => {
-        fetchData();
+        if (!isUpdating) {
+          fetchData();
+        }
       }, 5000);
 
       // Clean up the timer whenever the admin leaves this page so your browser stays fast
       return () => clearInterval(autoRefreshInterval);
     }
-  }, []);
+  }, [isUpdating]); // Re-bind the timer whenever the update state changes
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
-    // FIX: Optimistically update the state locally so the dropdown reflects the change instantly
+    // Stop the background sync loop immediately so it can't overwrite the screen
+    setIsUpdating(true);
+
+    // Optimistically update the state locally so the dropdown reflects the change instantly
     setSubmissions((prev: any) =>
       prev.map((sub: any) => (sub.id === id ? { ...sub, status: newStatus } : sub))
     );
@@ -51,12 +57,13 @@ export default function AdminDashboard() {
         body: JSON.stringify({ id, status: newStatus })
       });
       
-      // FIXED: Added a 500ms delay to let Supabase write the new status before refreshing
-      setTimeout(() => {
-        fetchData();
-      }, 500);
+      // Pull fresh data to confirm sync with the database
+      await fetchData();
     } catch (error) {
       console.error("Failed to update status:", error);
+    } finally {
+      // Release the lock so the 5-second background sync loop can resume safely
+      setIsUpdating(false);
     }
   };
 
@@ -77,7 +84,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-slate-900">Agent Intake Desk</h1>
         <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded border border-emerald-200 font-medium">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live Auto-Sync Active (5s)
+          {isUpdating ? "Saving Status..." : "Live Auto-Sync Active (5s)"}
         </div>
       </div>
       
@@ -108,8 +115,9 @@ export default function AdminDashboard() {
               <td className="p-4">
                 <select 
                   value={sub.status}
+                  disabled={isUpdating}
                   onChange={(e) => updateStatus(sub.id, e.target.value)}
-                  className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400"
+                  className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:opacity-50"
                 >
                   <option value="Pending Assignment">Pending Assignment</option>
                   <option value="Active Case">Active Case</option>
