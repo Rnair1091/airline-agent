@@ -1,14 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
-  const [isUpdating, setIsUpdating] = useState(false); // Flag to freeze the auto-sync during a database save
   const router = useRouter();
+  
+  // Use a reference container to track updates so we don't spawn duplicate timers
+  const isUpdatingRef = useRef(false); 
 
   // 1. Fetch data function that pulls the latest records from the backend database
   const fetchData = async () => {
+    // If we are currently saving a status change, skip this background cycle entirely
+    if (isUpdatingRef.current) return; 
+
     try {
       const res = await fetch('/api/get-data');
       if (res.ok) {
@@ -24,28 +29,27 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!localStorage.getItem('agent_authenticated')) {
       router.push('/login');
-    } else {
-      // Run the initial data load immediately when the page finishes rendering
-      fetchData();
-
-      // Start an auto-sync timer that updates the table every 5 seconds, BUT only if we aren't saving an update
-      const autoRefreshInterval = setInterval(() => {
-        if (!isUpdating) {
-          fetchData();
-        }
-      }, 5000);
-
-      // Clean up the timer whenever the admin leaves this page so your browser stays fast
-      return () => clearInterval(autoRefreshInterval);
+      return;
     }
-  }, [isUpdating]); // Re-bind the timer whenever the update state changes
+
+    // Run the initial data load immediately
+    fetchData();
+
+    // Start a clean auto-sync timer that runs every 5000 milliseconds (5 seconds)
+    const autoRefreshInterval = setInterval(() => {
+      fetchData();
+    }, 5000);
+
+    // Clean up the timer when the page closes to prevent duplicate loops
+    return () => clearInterval(autoRefreshInterval);
+  }, []); 
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
-    // Stop the background sync loop immediately so it can't overwrite the screen
-    setIsUpdating(true);
+    // Freeze the background timer instantly
+    isUpdatingRef.current = true;
 
-    // Optimistically update the state locally so the dropdown reflects the change instantly
+    // Optimistically update the state locally so the dropdown changes text instantly
     setSubmissions((prev: any) =>
       prev.map((sub: any) => (sub.id === id ? { ...sub, status: newStatus } : sub))
     );
@@ -57,13 +61,25 @@ export default function AdminDashboard() {
         body: JSON.stringify({ id, status: newStatus })
       });
       
-      // Pull fresh data to confirm sync with the database
-      await fetchData();
+      // Give Supabase a brief moment to finish indexing the value
+      setTimeout(async () => {
+        try {
+          const res = await fetch('/api/get-data');
+          if (res.ok) {
+            const data = await res.json();
+            setSubmissions(data);
+          }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          // Unfreeze the background timer after the fresh data is securely on screen
+          isUpdatingRef.current = false;
+        }
+      }, 1000);
+
     } catch (error) {
       console.error("Failed to update status:", error);
-    } finally {
-      // Release the lock so the 5-second background sync loop can resume safely
-      setIsUpdating(false);
+      isUpdatingRef.current = false;
     }
   };
 
@@ -75,7 +91,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     });
-    fetchData(); // Instantly update the UI after deletion
+    fetchData();
   };
 
   return (
@@ -84,7 +100,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-slate-900">Agent Intake Desk</h1>
         <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded border border-emerald-200 font-medium">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          {isUpdating ? "Saving Status..." : "Live Auto-Sync Active (5s)"}
+          Live Auto-Sync Active (5s)
         </div>
       </div>
       
@@ -115,9 +131,8 @@ export default function AdminDashboard() {
               <td className="p-4">
                 <select 
                   value={sub.status}
-                  disabled={isUpdating}
                   onChange={(e) => updateStatus(sub.id, e.target.value)}
-                  className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:opacity-50"
+                  className="bg-slate-100 p-2 text-xs border border-slate-300 rounded cursor-pointer font-medium focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
                   <option value="Pending Assignment">Pending Assignment</option>
                   <option value="Active Case">Active Case</option>
