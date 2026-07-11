@@ -1,0 +1,35 @@
+[
+  {
+    "id": "lead_1783735321759",
+    "travelerName": "dndn",
+    "phone": "1222211212112",
+    "email": "sjszzzzzz@gmail.com",
+    "pnr": "DBH",
+    "sector": "Flights",
+    "authorized": true,
+    "status": "Resolved",
+    "createdAt": "2026-07-11T02:02:01.759Z"
+  },
+  {
+    "id": "lead_1783735473686",
+    "travelerName": "dhdh",
+    "phone": "9099090909",
+    "email": "gsg@ymail.com",
+    "pnr": "DHDH",
+    "sector": "Vacation Packages",
+    "authorized": true,
+    "status": "Resolved",
+    "createdAt": "2026-07-11T02:04:33.686Z"
+  },
+  {
+    "id": "lead_1783735622191",
+    "travelerName": "Rahul R Nair",
+    "phone": "9988898989",
+    "email": "rnair1091@gmail.com",
+    "pnr": "DHDHDH",
+    "sector": "Rental Car Fleet",
+    "authorized": true,
+    "status": "Resolved",
+    "createdAt": "2026-07-11T02:07:02.191Z"
+  }
+]
