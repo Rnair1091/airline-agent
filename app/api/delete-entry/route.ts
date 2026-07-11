@@ -1,25 +1,43 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: Request) {
   try {
-    const { id } = await request.json(); // Switch from index to unique id
-    const filePath = path.join(process.cwd(), 'data', 'leads.json');
-    
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'File not found.' }, { status: 404 });
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Lead ID is required.' },
+        { status: 400 }
+      );
     }
 
-    const fileData = fs.readFileSync(filePath, 'utf8');
-    let leads = JSON.parse(fileData);
+    // Convert string ID to a clean integer number to match the Supabase column type correctly
+    const numericId = parseInt(id, 10);
 
-    // Filter out the item matching the specific ID
-    const updatedLeads = leads.filter((lead: any) => lead.id !== id);
+    // Execute the deletion directly inside your Supabase 'leads' table
+    const { data, error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', numericId)
+      .select();
 
-    fs.writeFileSync(filePath, JSON.stringify(updatedLeads, null, 2), 'utf8');
-    return NextResponse.json({ success: true });
+    if (error) {
+      console.error('Supabase delete error:', error.message);
+      return NextResponse.json(
+        { error: 'Database transaction failed.' },
+        { status: 500 }
+      );
+    }
+
+    console.log(`Successfully deleted lead ${numericId} from Supabase`);
+    return NextResponse.json({ success: true, data });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete.' }, { status: 500 });
+    console.error("Delete route system error:", error);
+    return NextResponse.json(
+      { error: 'Internal system error processing deletion.' },
+      { status: 500 }
+    );
   }
 }
