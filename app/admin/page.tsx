@@ -6,12 +6,12 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const router = useRouter();
   
-  // Use a reference container to track updates so we don't spawn duplicate timers
+  // Containers to manage the active timer interval and block overlapping requests
   const isUpdatingRef = useRef(false); 
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 1. Fetch data function that pulls the latest records from the backend database
   const fetchData = async () => {
-    // If we are currently saving a status change, skip this background cycle entirely
     if (isUpdatingRef.current) return; 
 
     try {
@@ -25,31 +25,41 @@ export default function AdminDashboard() {
     }
   };
 
-  // 2. Set up the core security gate and the automatic background refresh loop
+  // Helper function to safely clear out the old timer and set up a fresh 10-second countdown loop
+  const resetAutoRefreshTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    timerRef.current = setInterval(() => {
+      fetchData();
+    }, 10000); // Fires strictly every 10 seconds (10000 milliseconds)
+  };
+
+  // 2. Set up the core security gate and the initial background refresh loop
   useEffect(() => {
     if (!localStorage.getItem('agent_authenticated')) {
       router.push('/login');
       return;
     }
 
-    // Run the initial data load immediately
+    // Run the initial data load immediately when the dashboard opens
     fetchData();
 
-    // Start a clean auto-sync timer that runs every 5000 milliseconds (5 seconds)
-    const autoRefreshInterval = setInterval(() => {
-      fetchData();
-    }, 5000);
+    // Start the optimized 10-second loop
+    resetAutoRefreshTimer();
 
-    // Clean up the timer when the page closes to prevent duplicate loops
-    return () => clearInterval(autoRefreshInterval);
+    // Clean up the timer when the page closes to prevent duplicate loops or resource leaks
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, []); 
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
-    // Freeze the background timer instantly
     isUpdatingRef.current = true;
 
-    // Optimistically update the state locally so the dropdown changes text instantly
+    // Optimistically update the state locally so the dropdown text changes instantly
     setSubmissions((prev: any) =>
       prev.map((sub: any) => (sub.id === id ? { ...sub, status: newStatus } : sub))
     );
@@ -61,37 +71,43 @@ export default function AdminDashboard() {
         body: JSON.stringify({ id, status: newStatus })
       });
       
-      // Give Supabase a brief moment to finish indexing the value
-      setTimeout(async () => {
-        try {
-          const res = await fetch('/api/get-data');
-          if (res.ok) {
-            const data = await res.json();
-            setSubmissions(data);
-          }
-        } catch (err) {
-          console.error(err);
-        } finally {
-          // Unfreeze the background timer after the fresh data is securely on screen
-          isUpdatingRef.current = false;
-        }
-      }, 1000);
+      // Pull fresh data to confirm sync with database
+      await fetchData();
+      
+      // Success! Reset the 10-second clock from this moment forward
+      resetAutoRefreshTimer();
 
     } catch (error) {
       console.error("Failed to update status:", error);
+    } finally {
       isUpdatingRef.current = false;
     }
   };
 
-  // Purge a record from your local storage system
+  // Purge a record completely from your Supabase database table
   const deleteEntry = async (id: string) => {
     if (!confirm('Are you sure you want to delete this submission?')) return;
-    await fetch('/api/delete-entry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    });
-    fetchData();
+    
+    isUpdatingRef.current = true;
+
+    try {
+      await fetch('/api/delete-entry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      
+      // Pull fresh data to clean up the screen view instantly
+      await fetchData();
+      
+      // Success! Reset the 10-second clock from this moment forward
+      resetAutoRefreshTimer();
+
+    } catch (error) {
+      console.error("Failed to delete entry:", error);
+    } finally {
+      isUpdatingRef.current = false;
+    }
   };
 
   return (
@@ -100,7 +116,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-slate-900">Agent Intake Desk</h1>
         <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded border border-emerald-200 font-medium">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live Auto-Sync Active (5s)
+          Live Auto-Sync Active (10s)
         </div>
       </div>
       
