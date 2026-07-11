@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { travelerName, phone, email, pnr, sector, authorized, airlineName } = body;
+    const { travelerName, phone, email, pnr, sector, authorized } = body;
 
     // 1. Validation check
     if (!travelerName || !phone || !email || !pnr || !sector) {
@@ -24,7 +24,6 @@ export async function POST(request: Request) {
           email: email,
           pnr: pnr,
           sector: sector,
-          airline_name: airlineName || null,
           authorized: authorized || false
         }
       ])
