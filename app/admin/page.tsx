@@ -24,22 +24,19 @@ export default function AdminDashboard() {
     if (!localStorage.getItem('agent_authenticated')) {
       router.push('/login');
     } else {
-      // Run the initial data load immediately when the page finishes rendering
       fetchData();
 
-      // Start an auto-sync timer that updates the table every 5000 milliseconds (5 seconds)
       const autoRefreshInterval = setInterval(() => {
         fetchData();
       }, 5000);
 
-      // Clean up the timer whenever the admin leaves this page so your browser stays fast
       return () => clearInterval(autoRefreshInterval);
     }
   }, []);
 
   // Update a submission status (e.g., Pending Assignment -> Active Case)
   const updateStatus = async (id: string, newStatus: string) => {
-    // Optimistically update the UI status state so the selector responds immediately
+    // Optimistically update the local state so the dropdown changes instantly for the user
     setSubmissions((prevLeads: any) =>
       prevLeads.map((lead: any) => (lead.id === id ? { ...lead, status: newStatus } : lead))
     );
@@ -49,10 +46,11 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: newStatus })
     });
-    fetchData(); // Instantly sync UI with final DB snapshot
+    
+    fetchData(); // Sync up with the database reality check
   };
 
-  // Purge a record from your local storage system
+  // Purge a record from your system
   const deleteEntry = async (id: string) => {
     if (!confirm('Are you sure you want to delete this submission?')) return;
     await fetch('/api/delete-entry', {
@@ -60,7 +58,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     });
-    fetchData(); // Instantly update the UI after deletion
+    fetchData(); 
   };
 
   return (
@@ -90,9 +88,9 @@ export default function AdminDashboard() {
           {submissions.map((sub: any, i: number) => (
             <tr key={sub.id || `fallback-key-${i}`} className="border-b hover:bg-slate-50/50 transition-colors">
               <td className="p-4 text-xs font-mono text-slate-500">
-                {sub.created_at ? new Date(sub.created_at).toLocaleString() : 'N/A'}
+                {sub.createdAt ? new Date(sub.createdAt).toLocaleString() : 'N/A'}
               </td>
-              <td className="p-4 font-medium">{sub.traveler_name || sub.travelerName}</td>
+              <td className="p-4 font-medium">{sub.travelerName || '—'}</td>
               <td className="p-4 font-mono text-xs select-all">{sub.phone || '—'}</td>
               <td className="p-4 text-xs select-all text-slate-600">{sub.email || '—'}</td>
               <td className="p-4 uppercase font-bold tracking-wider">{sub.pnr}</td>
