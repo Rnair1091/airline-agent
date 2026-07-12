@@ -10,8 +10,27 @@ export default function AdminDashboard() {
   const isUpdatingRef = useRef(false); 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Verifies credentials securely on the client layer to stop back-forward cache bypasses
+  const verifySessionOrRedirect = () => {
+    const hasAuth = localStorage.getItem('agent_authenticated');
+    const hasCookie = document.cookie.includes('agent_authenticated=true');
+    
+    if (!hasAuth || !hasCookie) {
+      // Clear out any half-deleted credentials for absolute safety
+      localStorage.removeItem('agent_authenticated');
+      document.cookie = "agent_authenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+      
+      // Instantly bounce them away
+      router.replace('/');
+      return false;
+    }
+    return true;
+  };
+
   // 1. Fetch data function that pulls the latest records from the backend database
   const fetchData = async () => {
+    // Before we call the database, double-check that the session wasn't destroyed
+    if (!verifySessionOrRedirect()) return;
     if (isUpdatingRef.current) return; 
 
     try {
@@ -36,12 +55,10 @@ export default function AdminDashboard() {
     }, 10000); // Fires strictly every 10 seconds (10000 milliseconds)
   };
 
-  // 2. Set up the core security gate and the initial background refresh loop
+  // 2. Core initialization hook that intercepts history state reloads
   useEffect(() => {
-    if (!localStorage.getItem('agent_authenticated')) {
-      router.push('/');
-      return;
-    }
+    // Run security pass check instantly
+    if (!verifySessionOrRedirect()) return;
 
     // Run the initial data load immediately when the dashboard opens
     fetchData();
@@ -49,21 +66,26 @@ export default function AdminDashboard() {
     // Start the optimized 10-second loop
     resetAutoRefreshTimer();
 
-    // Clean up the timer when the page closes to prevent duplicate loops or resource leaks
+    // Listen closely for browser history changes (Back/Forward actions) or page focus shifts
+    const handleVisibilityOrFocus = () => {
+      verifySessionOrRedirect();
+    };
+
+    window.addEventListener('pageshow', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
+    // Clean up all hooks and timers when the page closes to prevent duplicate loops or resource leaks
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      window.removeEventListener('pageshow', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
     };
   }, []); 
 
   // Wipes all credentials out completely and returns user safely to home page
   const handleLogout = () => {
-    // 1. Delete the secure browser authentication flags
     localStorage.removeItem('agent_authenticated');
-    
-    // 2. Clear out the security cookie by setting its expiration timestamp to the past
     document.cookie = "agent_authenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
-    
-    // 3. Immediately kick them back out to the main home landing screen
     router.push('/');
   };
 
@@ -71,7 +93,6 @@ export default function AdminDashboard() {
   const updateStatus = async (id: string, newStatus: string) => {
     isUpdatingRef.current = true;
 
-    // Optimistically update the state locally so the dropdown text changes instantly
     setSubmissions((prev: any) =>
       prev.map((sub: any) => (sub.id === id ? { ...sub, status: newStatus } : sub))
     );
@@ -82,13 +103,8 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus })
       });
-      
-      // Pull fresh data to confirm sync with database
       await fetchData();
-      
-      // Success! Reset the 10-second clock from this moment forward
       resetAutoRefreshTimer();
-
     } catch (error) {
       console.error("Failed to update status:", error);
     } finally {
@@ -99,7 +115,6 @@ export default function AdminDashboard() {
   // Purge a record completely from your database table
   const deleteEntry = async (id: string) => {
     if (!confirm('Are you sure you want to delete this submission?')) return;
-    
     isUpdatingRef.current = true;
 
     try {
@@ -108,13 +123,8 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
       });
-      
-      // Pull fresh data to clean up the screen view instantly
       await fetchData();
-      
-      // Success! Reset the 10-second clock from this moment forward
       resetAutoRefreshTimer();
-
     } catch (error) {
       console.error("Failed to delete entry:", error);
     } finally {
