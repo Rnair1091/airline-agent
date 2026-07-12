@@ -30,17 +30,36 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Handle Agent Authentication login submission
-  const handleAgentLogin = (e: React.FormEvent) => {
+  // Securely authenticate agent login via server API route
+  const handleAgentLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
+    setLoading(true);
     
-    if (username === 'admin' && password === 'password123') { 
-      localStorage.setItem('agent_authenticated', 'true');
-      setActiveModal(null);
-      router.push('/admin');
-    } else {
-      setAuthError('Invalid credentials. Access denied to operational workspace.');
+    try {
+      const response = await fetch('/api/auth/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Securely set the cookie for the server middleware to read
+        document.cookie = "agent_authenticated=true; path=/; max-age=86400; SameSite=Strict";
+        localStorage.setItem('agent_authenticated', 'true');
+        
+        setActiveModal(null);
+        setPassword('');
+        router.push('/admin');
+      } else {
+        setAuthError(data.error || 'Invalid credentials. Access denied to operational workspace.');
+      }
+    } catch (err) {
+      setAuthError('Network delay encountered. Please verify inputs or contact dispatch.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -222,17 +241,17 @@ export default function Home() {
             </div>
             
             {/* Fine-lined Search & Action Block */}
-<div className="lg:col-span-5 lg:pt-16 space-y-6">
-  {/* Modernized Luxury Search Wrapper */}
-  <div className="bg-slate-900/90 backdrop-blur-md p-4 border border-white/10 shadow-2xl text-white">
-    <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-2.5">
-      Select Asset Provider
-    </div>
-    <div className="search-dark-override">
-      <AirlineSearch />
-    </div>
-  </div>
-              
+            <div className="lg:col-span-5 lg:pt-16 space-y-6">
+              {/* Modernized Luxury Search Wrapper */}
+              <div className="bg-slate-900/90 backdrop-blur-md p-4 border border-white/10 shadow-2xl text-white">
+                <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 mb-2.5">
+                  Select Asset Provider
+                </div>
+                <div className="search-dark-override">
+                  <AirlineSearch />
+                </div>
+              </div>
+                  
               {/* Integrated Priority Channels Dashboard */}
               <div className="bg-slate-900/90 backdrop-blur-md p-6 border border-white/10 shadow-2xl text-white">
                 <div className="space-y-1 mb-4">
@@ -463,7 +482,7 @@ export default function Home() {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-white hover:bg-slate-100 disabled:bg-slate-700 disabled:text-slate-400 text-slate-950 font-bold py-4.5 px-6 rounded-none transition duration-300 text-[10px] tracking-[0.25em] uppercase"
+                className="w-full bg-white hover:bg-slate-100 disabled:bg-slate-700 disabled:text-slate-400 text-slate-950 font-bold py-4 px-6 rounded-none transition duration-300 text-[10px] tracking-[0.25em] uppercase"
               >
                 {loading ? 'Processing Assignment...' : 'Submit Request — $25 (Waived on Non-Success)'}
               </button>
@@ -487,7 +506,10 @@ export default function Home() {
 
       {/* ─── LUXURY POP-UP WINDOW MODAL SYSTEM ─── */}
       {activeModal && (
-        <div className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div 
+          className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => { setActiveModal(null); setAuthError(''); }}
+        >
           <div 
             className="bg-white w-full max-w-sm border border-slate-200 p-8 rounded-none relative shadow-2xl animate-in zoom-in-95 duration-200 text-slate-900"
             onClick={(e) => e.stopPropagation()}
@@ -543,6 +565,7 @@ export default function Home() {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter unique terminal id..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-none p-3 text-xs text-slate-900 focus:outline-none focus:border-slate-400 tracking-wide font-light"
+                    disabled={loading}
                   />
                 </div>
                 <div>
@@ -556,13 +579,15 @@ export default function Home() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full bg-slate-50 border border-slate-200 rounded-none p-3 text-xs text-slate-900 focus:outline-none focus:border-slate-400 font-light"
+                    disabled={loading}
                   />
                 </div>
                 <button 
                   type="submit" 
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-semibold tracking-widest uppercase p-3.5 transition rounded-none mt-2"
+                  disabled={loading}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-semibold tracking-widest uppercase p-3.5 transition rounded-none mt-2 disabled:bg-slate-600"
                 >
-                  Verify Parameters & Open Desk
+                  {loading ? 'Verifying...' : 'Verify Parameters & Open Desk'}
                 </button>
               </form>
             )}
