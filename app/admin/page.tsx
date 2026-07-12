@@ -165,6 +165,7 @@ export default function AdminDashboard() {
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Phone</th>
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Email</th>
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">PNR</th>
+            <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Airline</th>
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Domain</th>
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Status</th>
             <th className="p-4 border-b text-xs uppercase tracking-wider text-slate-500 font-semibold">Actions</th>
@@ -173,7 +174,7 @@ export default function AdminDashboard() {
         <tbody>
           {submissions.length === 0 ? (
             <tr>
-              <td colSpan={8} className="p-8 text-center text-xs text-slate-400 font-light">
+              <td colSpan={9} className="p-8 text-center text-xs text-slate-400 font-light">
                 No traveler profile allocations currently registered on terminal desk.
               </td>
             </tr>
@@ -183,10 +184,16 @@ export default function AdminDashboard() {
                 <td className="p-4 text-xs font-mono text-slate-500">
                   {sub.createdAt ? new Date(sub.createdAt).toLocaleString() : 'N/A'}
                 </td>
-                <td className="p-4 font-medium">{sub.travelerName}</td>
+                <td className="p-4 font-medium">{sub.travelerName || sub.traveler_name}</td>
                 <td className="p-4 font-mono text-xs select-all">{sub.phone || '—'}</td>
                 <td className="p-4 text-xs select-all text-slate-600">{sub.email || '—'}</td>
                 <td className="p-4 uppercase font-bold tracking-wider">{sub.pnr}</td>
+                {/* Brand new custom styled Airline Origin Badge column mapping */}
+                <td className="p-4">
+                  <span className="text-xs bg-slate-100 text-slate-800 font-semibold px-2.5 py-1 rounded border border-slate-200 capitalize">
+                    {sub.airline || 'homepage'}
+                  </span>
+                </td>
                 <td className="p-4 text-slate-600">{sub.sector}</td>
                 <td className="p-4">
                   <select 

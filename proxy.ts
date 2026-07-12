@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+// Updated function name from 'middleware' to 'proxy' for Next.js 16 compliance
+export function proxy(request: NextRequest) {
   const isAuthenticated = request.cookies.get('agent_authenticated')?.value;
 
-  // 1. If trying to access /admin and NOT logged in, kick them to the homepage
+  // 1. Secure backend admin dashboard routes
   if (request.nextUrl.pathname.startsWith('/admin') && isAuthenticated !== 'true') {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 2. If they ARE authenticated, let them through but strip out all browser caching
+  // 2. Clear out client cache headers to secure admin view states
   const response = NextResponse.next();
   
   if (request.nextUrl.pathname.startsWith('/admin')) {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 interface IntakeFormProps {
   defaultSector?: string;
-  airlineName?: string; // <-- This tells Vercel that airlineName is perfectly allowed here!
+  airlineName?: string; // Passed from the dynamic airline page
 }
 
 export default function IntakeForm({ defaultSector = 'Flights', airlineName = '' }: IntakeFormProps) {
@@ -37,7 +37,16 @@ export default function IntakeForm({ defaultSector = 'Flights', airlineName = ''
       const response = await fetch('/api/intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ travelerName, phone, email, pnr, sector, authorized, airlineName }),
+        // Mapped 'airlineName' prop to the 'airline' key expected by your backend API
+        body: JSON.stringify({ 
+          travelerName, 
+          phone, 
+          email, 
+          pnr, 
+          sector, 
+          authorized, 
+          airline: airlineName 
+        }),
       });
 
       const data = await response.json();

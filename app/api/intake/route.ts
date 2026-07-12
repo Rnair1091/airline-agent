@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient'; // Adjusted to relative path for compilation safety
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { travelerName, phone, email, pnr, sector, authorized } = body;
+    // Destructured 'airline' alongside the standard form parameters
+    const { travelerName, phone, email, pnr, sector, authorized, airline } = body;
 
     // 1. Validation check
     if (!travelerName || !phone || !email || !pnr || !sector) {
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Insert into Supabase database
+    // 2. Insert into Supabase database with dynamic airline attribution
     const { data, error } = await supabase
       .from('leads')
       .insert([
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
           email: email,
           pnr: pnr,
           sector: sector,
-          authorized: authorized || false
+          authorized: authorized || false,
+          airline: airline || 'General Desk' // Saves the specific carrier name, defaults to main desk if empty
         }
       ])
       .select();
